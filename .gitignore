@@ -10,4 +10,3 @@ backend/ssl/
 *.jks
 docs/*.txt
 *.log
-tests/
