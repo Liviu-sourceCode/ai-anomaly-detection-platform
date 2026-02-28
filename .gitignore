@@ -1,0 +1,13 @@
+.env
+node_modules/
+backend/config.js
+backend/ssl/
+*.pem
+*.key
+*.crt
+*.cert
+*.p12
+*.jks
+docs/*.txt
+*.log
+tests/

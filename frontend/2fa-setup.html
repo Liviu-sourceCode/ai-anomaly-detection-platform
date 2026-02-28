@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:">
+    <title>Setup 2FA - Security Monitoring Dashboard</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/login.css">
+    <style>
+        /* Additional styles for 2FA setup page */
+        .login-card {
+            max-width: 500px;
+            width: 100%;
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+        
+        #qrcode-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        #qrcode {
+            max-width: 200px;
+            height: auto;
+        }
+        
+        .secret-key-container {
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 15px 0;
+            font-family: monospace;
+            word-break: break-all;
+            color: #333;
+        }
+        
+        .backup-codes {
+            background-color: #e9ecef;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .backup-codes h4 {
+            margin-top: 0;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .backup-codes p {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        #backup-codes {
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: #212529;
+            font-weight: 600;
+            max-height: 200px;
+            overflow-y: auto;
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .warning {
+            color: #dc3545;
+            font-weight: bold;
+            margin-top: 10px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            padding: 8px;
+        }
+        
+        #already-setup-container, #success-container {
+            text-align: center;
+        }
+        
+        .continue-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        
+        .continue-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <h2>Two-Factor Authentication</h2>
+            <div id="setup-container">
+                <p>Scan the QR code with your authenticator app (Google Authenticator, Authy, etc.)</p>
+                <div id="qrcode-container">
+                    <img id="qrcode" src="" alt="QR Code for 2FA">
+                </div>
+                <p>Or enter this code manually:</p>
+                <div class="secret-key-container">
+                    <strong id="secret-key"></strong>
+                </div>
+                
+                <form id="verify-form">
+                    <div class="input-group">
+                        <label for="token">Verification Code</label>
+                        <input type="text" id="token" name="token" required 
+                               placeholder="Enter 2FA code or backup code" autocomplete="one-time-code">
+                    </div>
+                    <div id="errorMessage" class="error-message" aria-live="polite"></div>
+                    <button type="submit" class="login-button">Verify and Enable 2FA</button>
+                </form>
+            </div>
+            
+            <!-- Container for when 2FA is already set up -->
+            <div id="already-setup-container" style="display: none;">
+                <h3>2FA Already Enabled</h3>
+                <p>Two-factor authentication is already enabled for your account.</p>
+                <p>You can continue to the dashboard or disable 2FA in your account settings.</p>
+                <a href="/index.html" class="continue-button">Continue to Dashboard</a>
+            </div>
+            
+            <div id="success-container" style="display: none;">
+                <h3>2FA Enabled Successfully!</h3>
+                <p>Your account is now protected with two-factor authentication.</p>
+                
+                <div class="backup-codes">
+                    <h4>Backup Codes</h4>
+                    <p>Save these backup codes in a secure place. Each code can be used once if you lose access to your authenticator app.</p>
+                    <pre id="backup-codes"></pre>
+                    <p class="warning">These codes won't be shown again!</p>
+                </div>
+                
+                <a href="/index.html" class="continue-button">Continue to Dashboard</a>
+            </div>
+        </div>
+    </div>
+    <script src="/js/2fa-setup.js"></script>
+</body>
+</html>

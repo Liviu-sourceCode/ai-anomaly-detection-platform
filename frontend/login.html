@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'">
+    <title>Login - Security Monitoring Dashboard</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/login.css">
+    <!-- Remove inline styles since we allow them via CSP -->
+</head>
+<body>
+    <div class="container login-container">
+        <div class="card login-card">
+            <h2>Security Dashboard Login</h2>
+            <form id="login-form" class="login-form">
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <input type="text"
+                           id="username"
+                           name="username"
+                           autocomplete="username">
+                </div>
+                <div id="password-group" class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password"
+                           id="password"
+                           name="password"
+                           required
+                           minlength="8"
+                           autocomplete="current-password">
+                </div>
+                <div id="twofa-group" class="input-group" style="display: none;">
+                    <label for="token">Verification Code</label>
+                    <input type="text"
+                           id="token"
+                           name="token"
+                           placeholder="Enter 2FA code or backup code"
+                           autocomplete="one-time-code">
+                </div>
+                <div id="errorMessage" class="error-message" aria-live="polite"></div>
+                <button type="submit" class="login-button">Login</button>
+            </form>
+        </div>
+    </div>
+    <script src="/js/login.js"></script>
+</body>
+</html>

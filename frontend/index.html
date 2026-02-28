@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="">
+    <!-- Remove the CSP meta tag - let the server handle it -->
+    <title>Security Monitoring Dashboard</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <!-- Remove duplicate Chart.js - keep only one -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Apache Status Section -->
+        <div class="card server-status">
+
+            <div class="server-info-container">
+                <h2 style="color:#FFFFFF; margin-right: auto">Server Metrics</h2>
+                <div class="status-block">
+                    <h3 style="color:#FFFFFF">Apache Server</h3>
+                    <div class="status-wrapper">
+                        <div id="apacheStatus" class="status-indicator">Checking...</div>
+                    </div>
+                </div>
+                <div class="metrics-wrapper">
+                    <div class="metrics-row">
+                        <div class="metric">
+                            <div class="metric-chart">
+                                <canvas id="cpuChart" width="120" height="30"></canvas>
+                            </div>
+                            <div class="metric-content">
+                                <span class="metric-label">CPU</span>
+                                <span id="cpuMetric" class="metric-value">-</span>
+                            </div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-chart">
+                                <canvas id="memoryChart" width="120" height="30"></canvas>
+                            </div>
+                            <div class="metric-content">
+                                <span class="metric-label">MEM</span>
+                                <span id="memoryMetric" class="metric-value">-</span>
+                            </div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-chart">
+                                <canvas id="diskChart" width="120" height="30"></canvas>
+                            </div>
+                            <div class="metric-content">
+                                <span class="metric-label">DISK</span>
+                                <span id="diskMetric" class="metric-value">-</span>
+                            </div>
+                        </div>
+                        <div class="metric load-metric">
+                            <div class="metric-chart">
+                                <canvas id="loadChart" width="120" height="30"></canvas>
+                            </div>
+                            <div class="metric-content">
+                                <span class="metric-label">LOAD</span>
+                                <div class="load-values">
+                                    <div><span class="load-label">1m:</span> <span id="load1Metric" class="metric-value">-</span></div>
+                                    <div><span class="load-label">5m:</span> <span id="load5Metric" class="metric-value">-</span></div>
+                                    <div><span class="load-label">15m:</span> <span id="load15Metric" class="metric-value">-</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-content uptime-content">
+                                <span class="metric-label">UPTIME</span>
+                                <span id="uptimeMetric" class="metric-value">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logs Section -->
+        <div class="card">
+            <h2 style="color:#FFFFFF">Suricata Logs</h2>
+            <div class="log-controls">
+                <button id="pauseLogs" style="font-weight: bold;">Pause</button>
+                <select id="severityFilter">
+                    <option value="all" style="font-weight: bold;">All Severities</option>
+                    <option value="high" style="font-weight: bold;">High Only</option>
+                    <option value="medium" style="font-weight: bold;">Medium Only</option>
+                    <option value="low" style="font-weight: bold;">Low Only</option>
+                </select>
+                <button id="toggleLogView" style="font-weight: bold;">Switch to Table View</button>
+                <button id="exportCSV" class="export-button" type="button" style="font-weight: bold;">Export CSV</button>
+                <button id="export-json-btn" class="btn btn-secondary" style="font-weight: bold;">Export JSON</button>
+                <button id="exportPDF" class="export-button" type="button" style="font-weight: bold;">Generate PDF</button>
+                <span id="pdfLoadingSpinner" style="display:none; margin-left:10px;"><img src="/favicon.ico" style="width:18px;vertical-align:middle;"> Generating PDF...</span>
+                
+            </div>
+            <div id="logsContainer" class="logs-container"></div>
+            <div id="logsTableContainer" style="display:none;"></div>
+        </div>
+
+        <!-- Metrics Dashboard -->
+        <div class="card">
+            <h2 style="color:#FFFFFF">Real-Time Alert Trends</h2>
+            <div class="dashboard">
+                <div class="stat-card">
+                    <div class="stat-title">Most Common Attack</div>
+                    <div id="commonAttack" class="stat-value">-</div>
+                    <div id="attackCount" class="stat-subtitle">0 occurrences</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Highest Severity</div>
+                    <div id="highestSeverity" class="stat-value">-</div>
+                    <div id="severityCount" class="stat-subtitle">0 alerts</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Top Source IP</div>
+                    <div id="topSourceIP" class="stat-value">-</div>
+                    <div id="sourceIPCount" class="stat-subtitle">0 events</div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="trafficChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="charts-container">
+        <div class="chart-row">
+            <div class="chart-card">
+                <h3 style="color:#FFFFFF">Geographic Attack Distribution</h3>
+                <!-- Increase height and add width:100% -->
+                <div id="geo-map" style="height: 500px; width: 100%; border: 1px solid var(--border-color);"></div>
+            </div>
+        </div>
+        <div class="chart-row">
+            <div class="chart-card">
+                <canvas id="severity-chart" height="250"></canvas>
+            </div>
+            <div class="chart-card">
+                <canvas id="category-chart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Chat Interface -->
+    <div id="aiChatContainer" class="ai-chat-container open" style="position:fixed;">
+        <div id="aiChatHeader" class="ai-chat-header">
+            <span style="color:#FFFFFF; font-weight: bold;">Security AI Assistant</span>
+            <div style="display:flex;gap:4px;">
+                <button id="aiChatMaximize" class="ai-chat-toggle" title="Maximize">□</button>
+                <button id="aiChatToggle" class="ai-chat-toggle" title="Minimize">−</button>
+            </div>
+        </div>
+        <div id="aiChatBody" class="ai-chat-body">
+            <div id="aiModelSelector" class="ai-model-selector">
+                <select id="aiModelSelect" class="ai-model-select">
+                    <option value="">Loading models...</option>
+                </select>
+                <button id="aiRefreshModels" class="ai-refresh-models">🔄</button>
+            </div>
+            <div id="aiChatMessages" class="ai-chat-messages"></div>
+            <div id="aiThinking" class="ai-thinking" style="display:none;">
+                <span class="ai-thinking-dot"></span>
+                <span class="ai-thinking-dot"></span>
+                <span class="ai-thinking-dot"></span>
+            </div>
+            <div class="ai-chat-input-container">
+                <textarea id="aiChatInput" class="ai-chat-input" placeholder="Ask about security events..."></textarea>
+                <button id="aiChatSend" class="ai-chat-send">➤</button>
+            </div>
+        </div>
+    </div>
+    <button id="aiChatStickyOpen" style="display:none;position:fixed;bottom:30px;right:30px;z-index:1200;background:var(--accent-color);color:#fff;border:none;border-radius:50%;width:48px;height:48px;box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:2rem;cursor:pointer;align-items:center;justify-content:center;">💬</button>
+    <script src="/js/geoChart.js"></script>
+    <script src="/js/severityChart.js"></script>
+    <script src="/js/categoryChart.js"></script>
+    <script type="module" src="/js/app.js"></script>
+</body>
+</html>
